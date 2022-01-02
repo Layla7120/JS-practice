@@ -4,13 +4,12 @@ function Node(data){
     this.next = null;
 }
 
-const LinkedList = function(){
-    let _length = 0;
-    let _head = null;
+function LinkedList() {
+    this.size= 0;
+    this.head = null;
 }
-
-LinkedList.appendNode = function(data){
-    const node = new Node(data);
+LinkedList.append = function(data){
+    let node = new Node(data);
     if(this._head == null){
         this._head = node;
     }
@@ -24,15 +23,16 @@ LinkedList.appendNode = function(data){
         curr.next = node;
     }
 
-    this._length++;
+    this.size++;
 }
 
 const arrayToList = (arr) => {
-    const list = new LinkedList();
-    for(let i = 0; i <  arr._length; i++){
-        list.appendNode(arr[i]);
+    let list = new LinkedList();
+    for(let i = 0; i < arr._length; i++){
+        console.log(arr[i]);
+        list.append(arr[i]);
     }
     return list
 }
 
-console.log(arrayToList([1, 2, 3])._length)
+console.log(arrayToList([1, 2, 3]));

@@ -1,4 +1,4 @@
-const every1 = function(arr, cond){
+const every = function(arr, cond){
     let a = true;
     for(let i=0; i<arr.length; i++){
         a = a && cond(arr[i]);
@@ -6,12 +6,14 @@ const every1 = function(arr, cond){
     return a 
 }
 
-// some으로 어떻게 구현하는지 모르겠음.
+// some으로 어떻게 구현하는지 모르겠음. -> 해설봄 !some = every
 const every2 = function(arr, cond){
-    console.log(arr.some(cond));
+    return !arr.some(element => !cond(element));
 }
 
-const cond = (a) => a % 2 == 0;
-
-console.log(every1([1, 2, 3, 4, 5], cond));
-every2([1, 2, 3, 4, 5], cond);
+console.log(every2([1, 3, 5], n => n < 10));
+// → true
+console.log(every([2, 4, 16], n => n < 10));
+// → false
+console.log(every([], n => n < 10));
+// → true
