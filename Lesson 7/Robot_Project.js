@@ -137,16 +137,30 @@ function goalOrientedRobot({place, parcels}, route) {
             route = findRoute(roadGraph, place, parcel.address);
         }
     }
+    console.log(route, route.slice(1), "test");
     return {direction: route[0], memory: route.slice(1)};
 }
 
-//택배 부치는 데 다 돌고 목적지 돌기
-// function myBetterRobot({place, parcels}, route) {
-//     console.log(parcels.sort());
+
+function myBetterRobot({place, parcels}, route) {
+    if (route.length == 0) {
+        let parcel = parcels[0];
+        //찾으러 가는 길
+        if (parcel.place != place) {
+            route = findRoute(roadGraph, place, parcel.place);
+        
+        }
+        //배달하는 길 
+        else {
+            route = findRoute(roadGraph, place, parcel.address);
+        }
+    }
+    console.log(route, route.slice(1), "test");
+    return {direction: route[0], memory: route.slice(1)};
      
-// }
+}
 
-
+runRobot(VillageState.random(), myBetterRobot, []);
 
 function countTurns(state, robot, memory){
     let turn = 0
