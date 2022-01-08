@@ -1,0 +1,22 @@
+{
+  "name": "js-practice",
+  "version": "1.0.0",
+  "description": "2022.01.02~",
+  "main": "Project_1_Node.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jenny7120/JS-practice.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jenny7120/JS-practice/issues"
+  },
+  "homepage": "https://github.com/jenny7120/JS-practice#readme",
+  "dependencies": {
+    "googleapis": "^39.2.0"
+  }
+}
