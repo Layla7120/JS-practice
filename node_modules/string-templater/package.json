@@ -1,0 +1,30 @@
+{
+  "name": "string-templater",
+  "version": "1.0.0",
+  "description": "Basic string templator",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/MauriceButler/string-templater.git"
+  },
+  "author": "Maurice Butler <maurice.butler@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MauriceButler/string-templater/issues"
+  },
+  "homepage": "https://github.com/MauriceButler/string-templater#readme",
+  "keywords": [
+    "string",
+    "format",
+    "template",
+    "templator",
+    "replace",
+    "keys"
+  ],
+  "devDependencies": {
+    "tape": "^4.2.0"
+  }
+}
