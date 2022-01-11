@@ -1,5 +1,11 @@
 const bigOak = require("./crow-tech").bigOak;
- 
+const defineRequestType = require("./crow-tech").defineRequestType;
+
+defineRequestType("note", (nest, content, source, done) => {
+    console.log(`${nest.name} received note: ${content}`);
+    done();
+  });
+
 // bigOak.readStorage("food caches", caches => {
 //     let firstCache = caches[0];
 //     bigOak.readStorage(firstCache, info => {
@@ -20,9 +26,6 @@ class Timeout extends Error {}
 
 bigOak.send("Cow Pasture", "note", "Let's caw loudly at 7PM", () => console.log("Note delivered"));
 
-import { defineRequestType } from "./crow-tech";
-
-
 function request(nest, target, type, content){
     return new Promise((resolve, reject) => {
         let done = false;
@@ -41,23 +44,58 @@ function request(nest, target, type, content){
     attempt(1);
     })
 }
+  function requestType(name, handler) {
+    defineRequestType(name, (nest, content, source,callback) => {
+      try {
+        Promise.resolve(handler(nest, content, source))
+          .then(response => callback(null, response),
+                failure => callback(failure));
+      } catch (exception) {
+        callback(exception);
+      }
+    });
+  }
 
-const everywhere = require("./crow-tech").everywhere;
+  requestType("ping", () => "pong");
 
-everywhere(nest => {
-    nest.state.gossip = [];
-});
+  const everywhere = require("./crow-tech").everywhere;
 
-function sendGossip(nest, message, exceptFor = null){
+  everywhere(nest => { nest.state.gossip = []; });
+  
+  function sendGossip(nest, message, exceptFor = null) {
     nest.state.gossip.push(message);
-    for (let neighbors of nest.neighbors){
-        if(neighbor == exceptFor) continue;
-        request(nest, neighbors, "gossip", message);
+    for (let neighbor of nest.neighbors) {
+      if (neighbor == exceptFor) continue;
+      request(nest, neighbor, "gossip", message);
     }
-}
-
-// requestType("gossip", (nest, message, source) => {
-//     if(nest.state.gossip.includes(message)) return;
-//     console.log(`${nest.name} received gossip '${message}' from ${source}`);
-//     sendGossip(nest, message, source);
-// });
+  }
+  
+  requestType("gossip", (nest, message, source) => {
+    if (nest.state.gossip.includes(message)) return;
+    console.log(`${nest.name} received gossip '${message}' from ${source}`);
+    sendGossip(nest, message, source);
+  });
+  
+  requestType("connections", (nest, {name, neighbors}, source) => {
+    let connections = nest.state.connections;
+    if (JSON.stringify(connections.get(name)) ==
+        JSON.stringify(neighbors)) return;
+    connections.set(name, neighbors);
+    broadcastConnections(nest, name, source);
+  });
+  
+  function broadcastConnections(nest, name, exceptFor = null) {
+    for (let neighbor of nest.neighbors) {
+      if (neighbor == exceptFor) continue;
+      request(nest, neighbor, "connections", {
+        name,
+        neighbors: nest.state.connections.get(name)
+      });
+    }
+  }
+  
+  everywhere(nest => {
+    nest.state.connections = new Map();
+    nest.state.connections.set(nest.name, nest.neighbors);
+    broadcastConnections(nest, nest.name);
+  });
