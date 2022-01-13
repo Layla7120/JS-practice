@@ -13,18 +13,16 @@ defineRequestType("note", (nest, content, source, done) => {
 //     })
 // })
 
-// function storage(nest, name){
-//     return new Promise(resolve => {
-//         nest.readStorage(name, result => resolve(result));
-//     });
-// }
+function storage(nest, name){
+    return new Promise(resolve => {
+        nest.readStorage(name, result => resolve(result));
+    });
+}
 
 // storage(bigOak, "enemies")
 //     .then(value => console.log("Got", value));
 
-class Timeout extends Error {}
-
-bigOak.send("Cow Pasture", "note", "Let's caw loudly at 7PM", () => console.log("Note delivered"));
+const Timeout = class Timeout extends Error {}
 
 function request(nest, target, type, content){
     return new Promise((resolve, reject) => {
@@ -44,8 +42,9 @@ function request(nest, target, type, content){
     attempt(1);
     })
 }
+
   function requestType(name, handler) {
-    defineRequestType(name, (nest, content, source,callback) => {
+    defineRequestType(name, (nest, content, source, callback) => {
       try {
         Promise.resolve(handler(nest, content, source))
           .then(response => callback(null, response),
@@ -57,6 +56,20 @@ function request(nest, target, type, content){
   }
 
   requestType("ping", () => "pong");
+
+  function availableNeighbors(nest) {
+    let requests = nest.neighbors.map(neighbor => {
+      return request(nest, neighbor, "ping")
+        .then(() => true, () => false);
+    });
+    return Promise.all(requests).then(result => {
+      return nest.neighbors.filter((_, i) => result[i]);
+    });
+  }
+  availableNeighbors(bigOak);
+
+  bigOak.send("Cow Pasture", "note", "Let's caw loudly at 7PM", () => console.log("Note delivered"));
+  console.log(request("Cow Pasture", "Church Tower-Big Maple", "ping", "Let's caw loudly at 7PM"));
 
   const everywhere = require("./crow-tech").everywhere;
 
@@ -81,21 +94,24 @@ function request(nest, target, type, content){
     if (JSON.stringify(connections.get(name)) ==
         JSON.stringify(neighbors)) return;
     connections.set(name, neighbors);
-    broadcastConnections(nest, name, source);
+    broadcastConnections(nest, name, source);b 
   });
   
-  function broadcastConnections(nest, name, exceptFor = null) {
-    for (let neighbor of nest.neighbors) {
-      if (neighbor == exceptFor) continue;
-      request(nest, neighbor, "connections", {
-        name,
-        neighbors: nest.state.connections.get(name)
-      });
-    }
-  }
+  // function broadcastConnections(nest, name, exceptFor = null) {
+  //   for (let neighbor of nest.neighbors) {
+  //     if (neighbor == exceptFor) continue;
+  //     request(nest, neighbor, "connections", {
+  //       name,
+  //       neighbors: nest.state.connections.get(name)
+  //     });
+  //   }
+  // }
   
-  everywhere(nest => {
-    nest.state.connections = new Map();
-    nest.state.connections.set(nest.name, nest.neighbors);
-    broadcastConnections(nest, nest.name);
-  });
+  // everywhere(nest => {
+  //   nest.state.connections = new Map();
+  //   nest.state.connections.set(nest.name, nest.neighbors);
+  //   broadcastConnections(nest, nest.name);
+  // });
+
+  // findInStorage(bigOak, "events on 2017-12-21")
+  // .then(console.log);
