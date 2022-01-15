@@ -97,21 +97,21 @@ function request(nest, target, type, content){
     broadcastConnections(nest, name, source);b 
   });
   
-  // function broadcastConnections(nest, name, exceptFor = null) {
-  //   for (let neighbor of nest.neighbors) {
-  //     if (neighbor == exceptFor) continue;
-  //     request(nest, neighbor, "connections", {
-  //       name,
-  //       neighbors: nest.state.connections.get(name)
-  //     });
-  //   }
-  // }
+  function broadcastConnections(nest, name, exceptFor = null) {
+    for (let neighbor of nest.neighbors) {
+      if (neighbor == exceptFor) continue;
+      request(nest, neighbor, "connections", {
+        name,
+        neighbors: nest.state.connections.get(name)
+      });
+    }
+  }
   
-  // everywhere(nest => {
-  //   nest.state.connections = new Map();
-  //   nest.state.connections.set(nest.name, nest.neighbors);
-  //   broadcastConnections(nest, nest.name);
-  // });
+  everywhere(nest => {
+    nest.state.connections = new Map();
+    nest.state.connections.set(nest.name, nest.neighbors);
+    broadcastConnections(nest, nest.name);
+  });
 
-  // findInStorage(bigOak, "events on 2017-12-21")
-  // .then(console.log);
+  findInStorage(bigOak, "events on 2017-12-21")
+  .then(console.log);
