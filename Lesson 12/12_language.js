@@ -10,7 +10,7 @@
 */
 
 function parseExpression(program) {
-  program = skipSpace(program);
+  program = skipSpace(program); 
   let match, expr;
   if (match = /^"([^"]*)"/.exec(program)) {
     expr = {type: "value", value: match[1]};
@@ -25,12 +25,12 @@ function parseExpression(program) {
   return parseApply(expr, program.slice(match[0].length));
 }
 
-//시작부분 공백 제거
-function skipSpace(string) {
-  let first = string.search(/\S/);
-  if (first == -1) return "";
-  return string.slice(first);
-}
+// //시작부분 공백 제거
+// function skipSpace(string) {
+//   let first = string.search(/\S/);
+//   if (first == -1) return "";
+//   return string.slice(first);
+// }
 
 //괄호 안의 인수 목록을 parsing 함
 function parseApply(expr, program) {
@@ -41,6 +41,7 @@ function parseApply(expr, program) {
 
   program = skipSpace(program.slice(1));
   expr = {type: "apply", operator: expr, args: []};
+
   while (program[0] != ")") {
     let arg = parseExpression(program);
     expr.args.push(arg.expr);
@@ -62,12 +63,20 @@ function parse(program) {
   return expr;
 }
 
+<<<<<<< HEAD
 console.log(parse("+(a, 10)"))
+=======
+console.log(parse("+(a, 10)"));
+>>>>>>> c90fe4c8fed01aa2ad9cd79755925c05ef1a4502
 //    operator: {type: "word", name: "+"},
 //    args: [{type: "word", name: "a"},
 //           {type: "value", value: 10}]}
 
 
+<<<<<<< HEAD
+=======
+//실행기 evalutor
+>>>>>>> c90fe4c8fed01aa2ad9cd79755925c05ef1a4502
 var specialForms = Object.create(null);
 
 function evaluate(expr, scope) {
@@ -96,6 +105,7 @@ function evaluate(expr, scope) {
   }
 }
 
+// 특별한 구문(if, while, do, define) 정의 
 specialForms.if = (args, scope) => {
   if (args.length != 3) {
     throw new SyntaxError("Wrong number of args to if");
@@ -137,6 +147,7 @@ specialForms.define = (args, scope) => {
   return value;
 };
 
+//scope 정의
 var topScope = Object.create(null);
 
 topScope.true = true;
@@ -178,3 +189,90 @@ specialForms.fun = (args, scope) => {
     return evaluate(body, localScope);
   };
 };
+
+run(`
+do(define(plusOne, fun(a, +(a, 1))),
+   print(plusOne(10)))
+`);
+
+run(`
+do(define(pow, fun(base, exp,
+     if(==(exp, 0),
+        1,
+        *(base, pow(base, -(exp, 1)))))),
+   print(pow(2, 10)))
+`);
+
+// 12-1****
+
+topScope.array = (...values) => {
+  return arr = [...values]
+};
+
+topScope.length = (array => {
+  return array.length;
+});
+
+topScope.element = (array, n) => {
+  return array[n];
+};
+
+run(`
+do(define(sum, fun(array,
+     do(define(i, 0),
+        define(sum, 0),
+        while(<(i, length(array)),
+          do(define(sum, +(sum, element(array, i))),
+             define(i, +(i, 1)))),
+        sum))),
+   print(sum(array(1, 2, 3))))
+`);
+// → 6
+
+// 12-2****
+
+// This is the old skipSpace. Modify it...
+function skipSpace(string) {
+  string = string.replace(/#.*\n/,"");
+  let first = string.search(/\S/);
+  if (first == -1) return "";
+  return string.slice(first);
+}
+
+console.log(parse("# hello\nx"));
+// → {type: "word", name: "x"}
+
+console.log(parse("a # one\n   # two\n()"));
+// → {type: "apply",
+//    operator: {type: "word", name: "a"},
+//    args: []}
+
+
+//12-4**** 해설봄
+specialForms.set = (args, env) => {
+    if (args.length != 2 || args[0].type != "word") {
+      throw new SyntaxError("Incorrect use of set");
+    }
+    let varName = args[0].name;
+    let value = evaluate(args[1], env);
+    
+    //이 for문의 의미??
+    for (let scope = env; scope; scope = Object.getPrototypeOf(scope)){
+      console.log(scope);
+      if(Object.prototype.hasOwnProperty.call(scope, varName)){
+        scope[varName] = value; 
+        return value;
+      }
+    }
+    throw new ReferenceError(`Setting undefined variable ${varName}`);
+  };
+
+run(`
+do(define(x, 4),
+   define(setx, fun(val, set(x, val))),
+   setx(50),
+   print(x))
+`);
+// → 50
+run(`set(quux, true)`);
+// → Some kind of ReferenceError
