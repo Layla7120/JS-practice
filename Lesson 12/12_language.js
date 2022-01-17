@@ -8,6 +8,7 @@
   ]
 }
 */
+
 function parseExpression(program) {
   program = skipSpace(program);
   let match, expr;
@@ -60,9 +61,12 @@ function parse(program) {
   }
   return expr;
 }
+
+console.log(parse("+(a, 10)"))
 //    operator: {type: "word", name: "+"},
 //    args: [{type: "word", name: "a"},
 //           {type: "value", value: 10}]}
+
 
 var specialForms = Object.create(null);
 
@@ -123,6 +127,7 @@ specialForms.do = (args, scope) => {
   return value;
 };
 
+//바인딩을 생성하고 새로운 값을 할당하기 위해 
 specialForms.define = (args, scope) => {
   if (args.length != 2 || args[0].type != "word") {
     throw new SyntaxError("Incorrect use of define");
