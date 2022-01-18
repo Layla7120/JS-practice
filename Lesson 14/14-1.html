@@ -1,0 +1,44 @@
+<!doctype html>
+
+<h1>Mountains</h1>
+
+<div id="mountains"></div>
+
+<script>
+  const MOUNTAINS = [
+    {name: "Kilimanjaro", height: 5895, place: "Tanzania"},
+    {name: "Everest", height: 8848, place: "Nepal"},
+    {name: "Mount Fuji", height: 3776, place: "Japan"},
+    {name: "Vaalserberg", height: 323, place: "Netherlands"},
+    {name: "Denali", height: 6168, place: "United States"},
+    {name: "Popocatepetl", height: 5465, place: "Mexico"},
+    {name: "Mont Blanc", height: 4808, place: "Italy/France"}
+  ];
+
+  function elt(type, ...children){
+        let node = document.createElement(type);
+        for (let child of children){
+            if (typeof child != "string") node.appendChild(child);
+            else node.appendChild(document.createTextNode(child));
+        }
+        return node;
+    }
+
+    let mountain = document.getElementById("mountains")
+    mountain.appendChild(   
+        elt("tr",
+        elt("th", "name"), 
+        elt("th", "height"), 
+        elt("th", "place")));
+
+    for (elements of MOUNTAINS){
+      console.log(typeof(elements.name));
+      mountain.appendChild(elt("tr",
+          elt("th", String(elements.name)), 
+          elt("th", String(elements.height)),
+          elt("th", String(elements.place)))); //String 이여야 함
+    };
+    
+    mountain.style.textAlign = "right";
+    
+</script> 
