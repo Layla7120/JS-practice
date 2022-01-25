@@ -1,100 +1,17 @@
-<!-- propagation : 
-    특정 노드에 등록된 모든 핸들러가 차례로 처리되고 난 후
-    전체 창에 등록된 핸들러에서 이벤트에 응답할 수 있다.-->
-<p>A paragraph with a <button>button</button>.</p>
+<!doctype html>
+
+<p>🎈</p>
+
 <script>
-    let para = document.querySelector("p");
-    let button = document.querySelector("button");
-    para.addEventListener("mousedown", () => {
-        console.log("Handler for paragraph.");
-    });
-    button.addEventListener("mousedown", event => {
-        console.log("Handler for button.");
-        if(event.button == 2) event.stopPropagation();
-    });
-
-</script>
-
-
-<!-- event.target : 이벤트가 발생한 요소를 반환 -->
-<button>
-    A
-</button>
-<button>
-    B
-</button>
-<button>
-    C
-</button>
-<script>
-    document.body.addEventListener("click", event => {
-        if(event.target.nodeName == "BUTTON"){
-            console.log("Clicked", event.target.textContent);
+    window.addEventListener("ArrowUp", event => {
+        console.log("ArrowUp");
+        if(event.key == "ArrowUp"){
+            document.body. = "violet";
         }
     });
-</script>
-
-
-<!-- preventDefault -->
-<a href = "https://developer.mozilla.org/">MDN</a>
-<script>
-    let link = document.querySelector("a");
-    link.addEventListener("click", event => {
-        console.log("Nope.");
-        event.preventDefault();
-    });
-</script>
-
-
-<!-- key event -->
-<p> This page turns violet when you hold the V key.</p>
-<script>
-    window.addEventListener("keydown", event => {
-        console.log("keydown");
-        if(event.key == "v"){
-            document.body.style.background = "violet";
-        }
-    });
-    window.addEventListener("keyup", event => {
-        if (event.key == "v"){
+    window.addEventListener("ArrowDown", event => {
+        if (event.key == "ArrowDown"){
             document.body.style.background = "";
         }
     });
 </script>
-
-<p>Press control-space to continue.</p>
-<script>
-    window.addEventListener("keydown", event => {
-        if(event.key == " " &&event.ctrlKey){
-            console.log("Continuing!");
-        }
-    });
-</script>
-
-<!-- mouse click -->
-<style>
-    body{
-        height: 200px;
-        /* background: beige; */
-    }
-    .dot{
-        height: 8px;
-        width: 8px;
-        border-radius: 4px;
-        background: blue;
-        position: absolute;
-    }
-</style>
-
-<script>
-    window.addEventListener("click", event => {
-        console.log("click");
-        let dot = document.createElement("div");
-        dot.className = "dot";
-        dot.style.left = (event.pageX - 4) + "px";
-        dot.style.top = (event.pageY - 4) + "px";
-        document.body.appendChild(dot);
-    });
-</script>
-
-<!-- mouse movement -->
