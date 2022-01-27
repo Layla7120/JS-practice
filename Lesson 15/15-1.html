@@ -3,15 +3,47 @@
 <p>🎈</p>
 
 <script>
-    window.addEventListener("ArrowUp", event => {
-        console.log("ArrowUp");
+    let p = document.querySelector("p");
+    //  이렇게 하는게 아니군
+    // window.addEventListener("keydown", event => {
+    //     if(event.key == "ArrowUp"){
+    //         console.log("ArrowUp", p.style.fontSize);
+    //         p.style.fontSize = (p.style.fontSize + 10) + "%";
+    //     }
+    //     else if(event.key == "down"){
+    //         p.style.fontSize = "90%";
+    //     }
+    // });
+
+    let size;
+
+    function setSize(newSize){
+        size = newSize;
+        p.style.fontSize = size + "px";
+    }
+
+    setSize(20); // 이걸 해줘야 확대 축소 가능 여기가 문제해결 부분
+
+    function handleArrow(event){
         if(event.key == "ArrowUp"){
-            document.body. = "violet";
+            //여기가 추가 구현 부분
+            if (size > 70){
+                p.textContent = "💥";
+                document.body.removeEventListener("keydown", handleArrow);
+            }
+            else{
+                setSize(size * 1.1);
+                event.preventDefault();
+            }
+        } else if (event.key == "ArrowDown"){
+            setSize(size * 0.9);
+            event.preventDefault();
         }
-    });
-    window.addEventListener("ArrowDown", event => {
-        if (event.key == "ArrowDown"){
-            document.body.style.background = "";
-        }
-    });
+    }
+
+    document.body.addEventListener("keydown", handleArrow);
+
+
+
+    
 </script>

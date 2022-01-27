@@ -1,0 +1,26 @@
+<!-- SVG  -->
+<p> normal HTML here. </p>
+<svg xmlns = "http://www.w3.org/2000/svg">
+  <circle r="50" cx="50" fill="red" />
+  <rect x="120" y="5" width="90" height="90" stroke="blue" fill="none" />
+</svg>
+
+
+<!-- canvas -->
+<p> Before canvas. </p>
+  <canvas width="120" height="60"></canvas>
+<p>After canvas.</p>
+  
+<script>
+  let canvas = document.querySelector("canvas");
+  let context = canvas.getContext("2d");
+  context.fillStyle = "red";
+  context.fillRect(10, 10, 100, 50);
+</script>
+
+
+
+  
+
+
+
