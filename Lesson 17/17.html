@@ -7,7 +7,7 @@
 
 
 <!-- canvas -->
-<p> Before canvas. </p>
+<!-- <p> Before canvas. </p>
   <canvas width="120" height="60"></canvas>
 <p>After canvas.</p>
   
@@ -16,11 +16,42 @@
   let context = canvas.getContext("2d");
   context.fillStyle = "red";
   context.fillRect(10, 10, 100, 50);
+</script> -->
+
+
+<canvas width = "200" height = "200"></canvas>
+<script>
+  const results = [
+  {name: "Satisfied", count: 1043, color: "lightblue"},
+  {name: "Netral", count: 563, color: "lightgreen" },
+  {name: "Unsatisfied", count: 510, color: "pink"},
+  {name: "No comment", count: 175, color: "silver"}
+  ];
+
+  let cx = document.querySelector("canvas").getContext("2d");
+  let total = results
+    .reduce((sum, { 
+      count }) => sum + count, 0);
+
+  let currentAngle = -0.5 * Math.PI;
+  for( let result of results ){
+    let sliceAngle = (result.count / total ) * 2 * Math.PI;
+    cx.beginPath();
+    cx.arc(100, 100, 100, currentAngle, currentAngle + sliceAngle);
+    currentAngle += sliceAngle;
+    cx.lineTo(100, 100);
+    cx.fillStyle = result.color;
+    cx.fill();
+  }
 </script>
 
-
-
-  
+<canvas></canvas>
+<script>
+  let cx2 = document.querySelector("canvas").getContext("2d");
+  cx2.font = "28px Georgia";
+  cx2.fillStyle = "fuchsia";
+  cx2.fillText("I can draw text, too!", 10, 50);
+</script>  
 
 
 
