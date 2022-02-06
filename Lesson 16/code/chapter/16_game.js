@@ -9,26 +9,27 @@ var simpleLevelPlan = `
 ......##############..
 ......................`;
 
-var Level = class Level {
+/***Level, Level Read Section */
+class Level {
   constructor(plan) {
-    let rows = plan.trim().split("\n").map(l => [...l]);
+    let rows = plan.trim().split("\n").map(l => [...l]); 
     this.height = rows.length;
     this.width = rows[0].length;
     this.startActors = [];
 
-    this.rows = rows.map((row, y) => {
+    this.rows = rows.map((row, y) => { 
       return row.map((ch, x) => {
         let type = levelChars[ch];
         if (typeof type == "string") return type;
         this.startActors.push(
           type.create(new Vec(x, y), ch));
-        return "empty";
+        return "empty"; 
       });
     });
   }
 }
 
-var State = class State {
+class State {
   constructor(level, actors, status) {
     this.level = level;
     this.actors = actors;
@@ -44,7 +45,7 @@ var State = class State {
   }
 }
 
-var Vec = class Vec {
+class Vec {
   constructor(x, y) {
     this.x = x; this.y = y;
   }
@@ -56,7 +57,7 @@ var Vec = class Vec {
   }
 }
 
-var Player = class Player {
+class Player {
   constructor(pos, speed) {
     this.pos = pos;
     this.speed = speed;
@@ -72,7 +73,7 @@ var Player = class Player {
 
 Player.prototype.size = new Vec(0.8, 1.5);
 
-var Lava = class Lava {
+class Lava {
   constructor(pos, speed, reset) {
     this.pos = pos;
     this.speed = speed;
@@ -94,7 +95,7 @@ var Lava = class Lava {
 
 Lava.prototype.size = new Vec(1, 1);
 
-var Coin = class Coin {
+class Coin {
   constructor(pos, basePos, wobble) {
     this.pos = pos;
     this.basePos = basePos;
@@ -112,15 +113,16 @@ var Coin = class Coin {
 
 Coin.prototype.size = new Vec(0.6, 0.6);
 
-var levelChars = {
+const levelChars = {
   ".": "empty", "#": "wall", "+": "lava",
   "@": Player, "o": Coin,
   "=": Lava, "|": Lava, "v": Lava
 };
 
-var simpleLevel = new Level(simpleLevelPlan);
+let simpleLevel = new Level(simpleLevelPlan);
 
-function elt(name, attrs, ...children) {
+/***Drawing section ****/
+function elt(name, attrs, ...children) {  
   let dom = document.createElement(name);
   for (let attr of Object.keys(attrs)) {
     dom.setAttribute(attr, attrs[attr]);
@@ -131,7 +133,7 @@ function elt(name, attrs, ...children) {
   return dom;
 }
 
-var DOMDisplay = class DOMDisplay {
+class DOMDisplay {
   constructor(parent, level) {
     this.dom = elt("div", {class: "game"}, drawGrid(level));
     this.actorLayer = null;
@@ -197,6 +199,7 @@ DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
   }
 };
 
+/*** Movement & collision Section ***/
 Level.prototype.touches = function(pos, size, type) {
   let xStart = Math.floor(pos.x);
   let xEnd = Math.ceil(pos.x + size.x);
@@ -252,17 +255,20 @@ Coin.prototype.collide = function(state) {
   return new State(state.level, filtered, status);
 };
 
+/*** Update Section **/
+//Lava Update
 Lava.prototype.update = function(time, state) {
   let newPos = this.pos.plus(this.speed.times(time));
   if (!state.level.touches(newPos, this.size, "wall")) {
     return new Lava(newPos, this.speed, this.reset);
   } else if (this.reset) {
-    return new Lava(this.reset, this.speed, this.reset);
+    return new Lava(this.reset, this.speed, this.reset); //reset
   } else {
-    return new Lava(this.pos, this.speed.times(-1));
+    return new Lava(this.pos, this.speed.times(-1));  //반동
   }
 };
 
+//Coin Update
 var wobbleSpeed = 8, wobbleDist = 0.07;
 
 Coin.prototype.update = function(time) {
@@ -272,6 +278,7 @@ Coin.prototype.update = function(time) {
                   this.basePos, wobble);
 };
 
+//Player Update
 var playerXSpeed = 7;
 var gravity = 30;
 var jumpSpeed = 17;
@@ -289,6 +296,7 @@ Player.prototype.update = function(time, state, keys) {
   let ySpeed = this.speed.y + time * gravity;
   let movedY = pos.plus(new Vec(0, ySpeed * time));
   if (!state.level.touches(movedY, this.size, "wall")) {
+
     pos = movedY;
   } else if (keys.ArrowUp && ySpeed > 0) {
     ySpeed = -jumpSpeed;
@@ -298,6 +306,7 @@ Player.prototype.update = function(time, state, keys) {
   return new Player(pos, new Vec(xSpeed, ySpeed));
 };
 
+/*** Key Tracking Section  ** */
 function trackKeys(keys) {
   let down = Object.create(null);
   function track(event) {
@@ -311,9 +320,9 @@ function trackKeys(keys) {
   return down;
 }
 
-var arrowKeys =
-  trackKeys(["ArrowLeft", "ArrowRight", "ArrowUp"]);
+var arrowKeys = trackKeys(["ArrowLeft", "ArrowRight", "ArrowUp"]);
 
+/** Run Animation */
 function runAnimation(frameFunc) {
   let lastTime = null;
   function frame(time) {
@@ -322,7 +331,7 @@ function runAnimation(frameFunc) {
       if (frameFunc(timeStep) === false) return;
     }
     lastTime = time;
-    requestAnimationFrame(frame);
+    requestAnimationFrame(frame);  //requestAnimationFrame : 브라우저가 화면을 다시 그릴 준비가 될떄마다 frame 함수 부름
   }
   requestAnimationFrame(frame);
 }
@@ -340,6 +349,7 @@ function runLevel(level, Display) {
       } else if (ending > 0) {
         ending -= time;
         return true;
+        
       } else {
         display.clear();
         resolve(state.status);
