@@ -29,6 +29,7 @@ class Level {
   }
 }
 
+// 실행중인 게임의 상태를 추적한다. 
 class State {
   constructor(level, actors, status) {
     this.level = level;
@@ -200,6 +201,7 @@ DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
 };
 
 /*** Movement & collision Section ***/
+//레벨 외부에 있는 사각형은 모두 wall로 취급 
 Level.prototype.touches = function(pos, size, type) {
   let xStart = Math.floor(pos.x);
   let xEnd = Math.ceil(pos.x + size.x);
@@ -306,7 +308,7 @@ Player.prototype.update = function(time, state, keys) {
   return new Player(pos, new Vec(xSpeed, ySpeed));
 };
 
-/*** Key Tracking Section  ** */
+/*** Key Tracking Section  ***/
 function trackKeys(keys) {
   let down = Object.create(null);
   function track(event) {
@@ -317,10 +319,14 @@ function trackKeys(keys) {
   }
   window.addEventListener("keydown", track);
   window.addEventListener("keyup", track);
+
+  /**해지 하는 구간 down에 넣어버림 */
+  down.unregister = () => {
+    window.removeEventListener("keydown", track);
+    window.removeEventListener("keyup", track);
+  };
   return down;
 }
-
-var arrowKeys = trackKeys(["ArrowLeft", "ArrowRight", "ArrowUp"]);
 
 /** Run Animation */
 function runAnimation(frameFunc) {
@@ -340,8 +346,30 @@ function runLevel(level, Display) {
   let display = new Display(document.body, level);
   let state = State.start(level);
   let ending = 1;
+  let running = "yes";
+
   return new Promise(resolve => {
-    runAnimation(time => {
+    function escHandler(event) {
+      if (event.key != "Escape") return;
+      event.preventDefault();
+      if (running == "no") {
+        running = "yes";
+        runAnimation(frame); //이부분이 있어야 다시 resume 되었을때도 돌아감
+      } else if (running == "yes") {
+        running = "pausing";
+      } else {
+        running = "yes";
+      }
+    }
+    window.addEventListener("keydown", escHandler);
+    let arrowKeys = trackKeys(["ArrowLeft", "ArrowRight", "ArrowUp"]);  //해제가 편하기 위해 여기에 선언?
+
+    //frame 을 다시 선언해 줘야 
+    function frame(time) {
+      if (running == "pausing") {
+        running = "no";
+        return false;
+      }
       state = state.update(time, arrowKeys);
       display.syncState(state);
       if (state.status == "playing") {
@@ -349,7 +377,45 @@ function runLevel(level, Display) {
       } else if (ending > 0) {
         ending -= time;
         return true;
-        
+      } else {
+        display.clear();
+        window.removeEventListener("keydown", escHandler); //해제
+        arrowKeys.unregister();
+        resolve(state.status);
+        return false;
+      }
+    }
+    runAnimation(frame);
+  });
+}
+
+/****시도했던 방식 - 이렇게 하면 멈추기만 가능하고 재생이 불가 
+function runLevel(level, Display) {
+  let display = new Display(document.body, level);
+  let state = State.start(level);
+  let ending = 1;
+  let stop = false;
+
+  function stopResume(event){
+    if(event.key == "Escape"){
+      stop = !stop;
+      event.preventDefault();
+    }
+  }
+  window.addEventListener("keydown", stopResume);
+  return new Promise(resolve => {
+    runAnimation(time => {
+      state = state.update(time, arrowKeys);
+      display.syncState(state);
+      // console.log(stop);
+      if (stop) { 
+        return false;
+      }
+      else if (state.status == "playing") {
+        return true;
+      } else if (ending > 0) {
+        ending -= time;
+        return true;
       } else {
         display.clear();
         resolve(state.status);
@@ -358,12 +424,22 @@ function runLevel(level, Display) {
     });
   });
 }
+*****/
 
 async function runGame(plans, Display) {
+  let life = 3
   for (let level = 0; level < plans.length;) {
+    console.log(life)
+    if (life == 0) break
     let status = await runLevel(new Level(plans[level]),
                                 Display);
     if (status == "won") level++;
+    if (status == "lost") life--;
   }
-  console.log("You've won!");
+  if (life == 0){
+    console.log("Lose...")}
+  else{
+    console.log("You've won!");
+  } 
 }
+
