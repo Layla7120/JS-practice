@@ -334,7 +334,7 @@ function runAnimation(frameFunc) {
   function frame(time) {
     if (lastTime != null) {
       let timeStep = Math.min(time - lastTime, 100) / 1000;
-      if (frameFunc(timeStep) === false) return;
+      if (frameFunc(timeStep) === false) return; //frameFunc true or false 는 여기서 갈림 
     }
     lastTime = time;
     requestAnimationFrame(frame);  //requestAnimationFrame : 브라우저가 화면을 다시 그릴 준비가 될떄마다 frame 함수 부름
@@ -379,7 +379,7 @@ function runLevel(level, Display) {
         return true;
       } else {
         display.clear();
-        window.removeEventListener("keydown", escHandler); //해제
+        window.removeEventListener("keydown", escHandler); // esc 해제
         arrowKeys.unregister();
         resolve(state.status);
         return false;
