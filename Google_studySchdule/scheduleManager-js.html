@@ -1,0 +1,102 @@
+<script>
+  /***************************************
+   * 학생들의 정보를 처리해주는 매니저 만들기
+   * 매니저를 이용해서 버튼에 맞는 핸들러 만들기
+   ***************************************/
+  // 학생 개인 스케줄 데이터를 처리하는 객체 만들기 서버에 데이터를 보내주는 역할
+  class ScheduleManager {
+    constructor (userInfo = {}) { // userInfo = { userName, userCode }
+      this.schedules = [] // key 는 round
+      this.userInfo = userInfo
+    }
+    // 학생 스케줄을 받아 두는 곳
+    async loadSchedules () {
+      this.schedules = await asyncRun(
+        { serverFunction: 'getStudentSchedule', args: [this.userInfo] }
+      )
+      console.log(`${this.userInfo.userName}'s schedules up`)
+    }
+    syncSchedules () {
+      scheduleData = this.schedules
+    }
+    checkExams (examCodes = []) { // 새로 입력된 코드가 이전에 있었던 코드인지 확인하는 함수
+      const previousExamCodes = scheduleData
+        .map(data => data.schedule)
+        .map(tracks => {
+          tracks
+            .filter(track => {
+              const status = track[1]
+              return (status === '제출' || status === '배부' || status === '배부')
+          })
+          .map(filtered => filtered[0])
+        })
+        .flat()
+      return examCodes.filter(examCode => !previousExamCodes.includes(examCode))
+    }
+    async makeBasicSchedule () { // lectureDate와 examCodes을 서버쪽에 보내서 업데이트 하고 스케줄 받아오기
+      const userInfo = this.userInfo
+      const lectureDate = document.querySelector('#lecture-date-input').value
+      const examCodes = [...document.querySelectorAll('.exam-code')]
+        .map($code => $code.value)
+        .filter(code => code)
+      const filteredExamCodes = this.checkExams(examCodes)
+      const alert = makeAlert('warning')
+      alert(`중복된 스케줄 제거하고 ${filteredExamCodes.join(',')} 만 추가하도록 합니다.`)
+
+      return await asyncRun(
+        { 
+          serverFunction: 'addNewSchedule', 
+          args: [userInfo, {lectureDate, examCodes: filteredExamCodes }]
+        }
+      )
+    }
+    scheduleToNode (generatedSchedule) { // 스케줄을 노드로 만들어서 리턴
+      const node = document.querySelector('#schedule-results')
+      const attachNode = attachNodeOn(node)
+      attachNode(displaySchedule(generatedSchedule))
+      const alert = makeAlert('success')
+      alert("새로운 스케줄이 등록되었습니다.")
+      clearAddSchedule()
+    }
+    getCheckBoxes () {
+      return document.querySelectorAll('.edit-schedule')
+    }
+    getCheckedBoxes () {
+      const result = []
+      for (let box of this.getCheckBoxes()) {
+        if (box.checked) {result.push(box)}
+      }
+      // console.log(result)
+      return result
+    }
+    validateSingleCheckBox () {
+      const checkBoxes = this.getCheckedBoxes()
+      return checkBoxes && checkBoxes.length == 1
+    }
+    // 받은 스케줄을 활성화
+    async activate (round) {
+      // server에 있는 데이타 바꾸기
+      await asyncRun({ serverFunction: 'activate', args:[this.userInfo, round]})
+      // 전역에 있는 데이터 바꾸기
+      await this.loadSchedules()
+      this.syncSchedules()
+      const rows = document.querySelectorAll('.schedule-row')
+      console.log(rows)
+      for (let row of rows) {
+        const $round = row.querySelector(".round")
+        console.log($round.textContent)
+        if($round.textContent == round) {
+          row.querySelector('.activity').textContent = 'y'
+        } else {row.querySelector('.activity').textContent = 'n'}            
+      }                              
+    }
+    // round 뽑기
+    getRoundsOfChecked () {
+      const boxesChecked = this.getCheckedBoxes()
+      return boxesChecked
+        .map(box => box.closest('.schedule-row'))
+        .map(tr => tr.querySelector('.round'))
+        .map($round => $round.textContent)
+    }
+  }
+</script>

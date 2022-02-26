@@ -1,0 +1,154 @@
+<script>
+  /************************
+   * 여기서 부터 파일 매니저
+   * **********************/
+  // 파일 매니저
+  class FileManager {
+    constructor(userInfo = {}) {
+      this.userInfo = userInfo
+      this.scheduleManager = new ScheduleManager(userInfo)
+    }
+    // 파일 체크
+    // url data 가져오기
+    getURLData (file) {
+      return new Promise ((resolve, reject) => {
+        const fileReader = new FileReader()
+        fileReader.onload = function (e) {
+          const fileData = e.target.result.substring(e.target.result.indexOf(",")+1)
+          resolve(fileData)
+        }
+        fileReader.readAsDataURL(file)
+      })   
+    }
+    // 파일 정보 불러오기
+    loadFileData () {
+      const $examFiles = document.querySelector('#drive-upload')
+      const files = $examFiles.files
+      return Promise.all([...files].map(async file => {
+        const fileData = await this.getURLData(file)
+        return { fileData, fileName: file.name, contentType: file.type }
+      }))
+    }
+    // 걸러진 스케줄 데이터 가져오기
+    async filterFiles () {
+      const sm = this.scheduleManager
+      
+      if(sm.validateSingleCheckBox()){
+        const round = sm.getRoundsOfChecked()[0]
+        // 최신 스케줄 로드
+        await sm.loadSchedules()
+        const examCodes = sm.schedules
+          .filter(schedule => schedule.round == round)[0]
+            .schedule
+            .filter(item => (item[1] == '생성' || item[1] == '포기'))
+            .map(item => item[0])
+        //console.log(examCodes)
+        // 스케줄 체커 만들기
+        const checkers = await Promise.all(examCodes.map(async code => {
+              const checker = await makeRegExCheckerForExamCode(code)
+              return checker
+            }
+          )
+        )
+        
+        const fileInformations = await this.loadFileData()
+        const filteredInfomations = fileInformations.filter(fileInformation => {
+            const { fileName } = fileInformation
+            return !checkers ? false : checkers.some(checker => checker(fileName))
+          })
+        return filteredInfomations
+
+      } else {
+        const alert = makeAlert('warning')
+        alert('하나의 체크박스만 체크 하세요!')
+      }
+    }        
+  }
+
+// exam 코드를 시리즈 아이디, 세트 네임, 트랙 으로 분리해주는 파서
+  const parseExamCode = async function (examCode = '') {
+    if (!examCode) {
+      console.error('Code is empty')
+      return 
+    } else {
+      examCode = examCode.toString()
+    }
+    const seriesMapData = await asyncRun(
+      { serverFunction: 'seriesMapData', args: [] }
+    )
+    const divideExamCode = function () {
+      // set up number of exam code
+      let trackNo, setNo, seriesId
+      pipe(
+        code => { trackNo = code.slice(-1)
+          return code.slice(0, -1) },
+        code => { setNo = code.slice(-2)
+          return code.slice(0, -2) },
+        code => seriesId = code
+      ) (this.examCode)
+      return { seriesId, setNo, trackNo } 
+    }
+    const findRow = function () {
+      const { seriesId } = this.divideExamCode(this.examCode)
+      return this.seriesMapData
+        .map(seriesRow => seriesRow[1])
+        .findIndex(id => id == seriesId)
+    }
+    const getSeriesTitle = function () {
+      return this.seriesMapData[this.findRow()][2]
+    }
+    const getSetName = function () {
+      const { setNo } = this.divideExamCode()
+      return this.seriesMapData[this.findRow()][parseInt(setNo) + 4]
+    }
+    const getTrackNumber = function () {
+      const { trackNo } = this.divideExamCode()
+      return trackNo
+    }
+    const protoType = Object.assign(Object.create(null), 
+      { getSeriesTitle, getSetName, getTrackNumber, findRow, divideExamCode })
+    const result = Object.create(protoType)
+    result.seriesMapData = seriesMapData
+    result.examCode = examCode 
+    return result
+  }
+  // 파서를 이용해서 파일이름이 시험코드에 맞는지를 확인하는 체커를 만드는 함수
+  const makeRegExCheckerForExamCode = async function (examCode = '') {
+    const parser = await parseExamCode(examCode)
+    const [seriesName, setName, trackNo] = [
+      parser.getSeriesTitle(), 
+      parser.getSetName(), 
+      parser.getTrackNumber()
+    ]
+    console.log(`시리즈: ${seriesName}, 세트: ${setName}, 트랙:${trackNo}`)
+    if(trackNo == 0) {
+      return fileName => fileName.match(examCode)
+    } else {
+      return fileName => {
+        return pipe(
+          fileName => { 
+            if(fileName && fileName.indexOf(seriesName) > -1) return fileName
+            else {
+              console.log('seriesName Fail')
+              return false
+          } 
+          },
+          fileName => {
+            if(fileName && fileName.indexOf(setName) > -1) return fileName
+            else {
+              console.log('setName Fail')
+              return false
+            }  
+          },
+          fileName => {
+            if (fileName && fileName.indexOf(`${trackNo}차`) > -1) return true
+            else {
+              console.log('trackNo Fail')
+              return false
+            }
+          }
+        ) (fileName)
+      }
+    }
+  }
+</script>
