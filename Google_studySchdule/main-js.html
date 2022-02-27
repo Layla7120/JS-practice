@@ -1,7 +1,9 @@
 <script>
-  /**************************
+ /**
  * 로딩 할 때 나오는 화면 조절
- * ************************/
+ * @function showLoadingScreen
+ * @returns {function}
+ */
 const showLoadingScreen = function () {
   const $loading = document.querySelector('#loading')
   return () => {
@@ -11,7 +13,13 @@ const showLoadingScreen = function () {
       : classes.add('invisible')
   }
 }
-// google.script.run promisify
+/** 
+ * google.script.run promisify 
+ * serverFunction 을 찾아서 args를 넣은 html을 띄워준다. 
+ * @function asyncRun
+ * @param { serverFunction: string, args : [string] }
+ * @returns {Promise} Promise
+ */
 const asyncRun = function ({ serverFunction = '', args = [] } = {}) {
   const changeLoadingView = showLoadingScreen()
   changeLoadingView()
@@ -27,19 +35,37 @@ const asyncRun = function ({ serverFunction = '', args = [] } = {}) {
   })
 }
 
-// Utility function pipe
+/** 
+ * Utility function pipe 함수를 이어줌
+ * @function pipe 
+ */
 const pipe = (...fns) => x => fns.reduce((y, f) => f(y), x)
 
+/** 
+ * 사용자코드, 사용자 이름을 불러옴 
+ * @function getUserInfoFromCaption
+ * @returns {userCode : string, userName : string}
+ */
 const getUserInfoFromCaption = function () {
   const captionEl = document.getElementById('user-info')
   const [userCode, userName] = captionEl.textContent.split(/\s+/)
   return { userCode, userName }
 }
 
-// 전역변수들: 학생들 기본 정보, 개인별 데이타
+/** @global */
 let studentBasicInfo, scheduleData
-            
-// 학생들의 기본정보를 모아두는 함수
+// main elements
+const app = document.querySelector('#app')
+const search = document.querySelector('#search-link')
+const addStudent = document.querySelector('#add-student-link')
+
+/**
+ * 학생들의 기본정보를 
+ * serverFunction 'getStudentBasicInfo' 도움을 받아 
+ * studentBasicInfo(global) 모아두는 함수
+ * @function getStudentsBasicInfo
+ * */
+ 
 const getStudentsBasicInfo = 
   asyncRun({ serverFunction:'getStudentBasicInfo' })
     .then(basicInfo => {
@@ -48,12 +74,15 @@ const getStudentsBasicInfo =
     })
     .catch(err => console.error(err))
 
-// main elements
-const app = document.querySelector('#app')
-const search = document.querySelector('#search-link')
-const addStudent = document.querySelector('#add-student-link')
-
-// 학습 스케줄 작성 화면 
+/** 
+ * 학습 스케줄 작성 화면 띄우기 
+ * 1. studySchedule.html 로드
+ * 2. getStudentSchedule 함수로부터 스케줄 정보 받아오기
+ * 3. displaySchedule 함수에 스케줄 정보 넣음
+ * 4. displaySchedule 함수에서 받은 정보를 html에 각각 입력
+ * @function loadStudyScheduleView    
+ * @param {event} e
+ * */
 const loadStudyScheduleView = function (e) {
   const userName = e.target.dataset.userName
   const userCode = e.target.dataset.userCode
@@ -79,10 +108,15 @@ const loadStudyScheduleView = function (e) {
   .then(() => {
     const captionEl = document.getElementById('user-info')
     captionEl.textContent = `${userCode} ${userName}`
-  })
-  .catch(err => console.error(err))
+  }) 
 }
-// 학생 찾는 화면 
+
+/**
+ * 학생 찾는 화면 
+ * 1. search.html 로드
+ * 2. index.html 'app' 에 html 작성
+ * @function loadSearchView
+ *  */ 
 const loadSearchView = function () {
   asyncRun({ 
     serverFunction: 'loadView', 
@@ -91,7 +125,13 @@ const loadSearchView = function () {
   .then(html => app.innerHTML = html)
   .catch(err => console.error(err))
 }
-// 새로운 학생 입력하기
+
+/**
+ * 새로운 학생 입력하기 
+ * 1. addStudent.html 로드
+ * 2. index.html 'app' 에 html 작성
+ * @function loadAddStudentView
+ *  */ 
 const loadAddStudentView = function () {
   asyncRun({
     serverFunction: 'loadView', 
@@ -101,7 +141,12 @@ const loadAddStudentView = function () {
   .catch(err => console.error(err))
 }
 
-// 신규 사용자 등록하기
+/**
+ * 신규 사용자 등록하기
+ * userName과 userCode를 serverFunction: 'initializeStudent' 에 넘겨
+ * 
+ * @function initializeStudent
+ *  */ 
 const initializeStudent = function () {
   const userCodeEl = document.querySelector('#userCode')
   const userNameEl = document.querySelector('#userName')
@@ -289,10 +334,17 @@ const modifyElement = function (element) {
   }    
 }
 
-// 원하는 곳에 append하기
+/**
+ * DOM | html 원하는 곳에 append하기
+ * @function attachNodeOn
+ * @param {Element} node
+ * @return {function} element => node.appendChild(element)
+ *  */ 
 const attachNodeOn = function (node) {
   return element => node.appendChild(element)
 } 
+
+
 // scheduleInfo 에 있는 데이타를 tr에 반영해서 보여줌
 const displaySchedule = function (scheduleInfo = {}) {
   const extractor = pipe(
@@ -491,5 +543,6 @@ app.addEventListener('click', clickEventHandler)
 search.addEventListener('click', loadSearchView)
 addStudent.addEventListener('click',loadAddStudentView)
 document.addEventListener('DomContentLoaded', getStudentsBasicInfo)
+
 
 </script>

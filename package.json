@@ -32,6 +32,7 @@
     "has": "^1.0.3",
     "has-symbols": "^1.0.2",
     "https-proxy-agent": "^2.2.4",
+    "jsdoc": "^3.6.10",
     "json-bigint": "^0.3.1",
     "jwa": "^1.4.1",
     "jws": "^3.2.2",
@@ -66,5 +67,6 @@
   "bugs": {
     "url": "https://github.com/jenny7120/JS-practice/issues"
   },
-  "homepage": "https://github.com/jenny7120/JS-practice#readme"
+  "homepage": "https://github.com/jenny7120/JS-practice#readme",
+  "keywords": []
 }

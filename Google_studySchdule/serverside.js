@@ -28,8 +28,15 @@ const loadModalDialogMenu = function (menuName = '') {
     .addToUi()
 }
 
-// 학생 초기화 함수
-// 시트에 학생의 시작 시트, 드라이브에 폴더, 클래스룸에 시작 지점을 차례대로 만드는 함수
+/**
+ * 학생 초기화 함수
+ * 시트에 학생의 시작 시트, 드라이브에 폴더, 클래스룸에 시작 지점을 차례대로 만드는 함수
+ * userSheet -> makeUserSheet.js
+ * userFolder -> makeUserFolder.js
+ * makeCourseWork -> makeFirstCourse.js
+ * @function initializeStudent
+ * @param { userName: string, userCode: string } userInfo 
+ */
 function initializeStudent (userInfo = {}) {
   userSheet(userInfo)
   userFolder(userInfo)
@@ -42,7 +49,14 @@ const getSheetNames = function () {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
   return ss.getSheets().map(sheet => sheet.getSheetName())
 }
-// 필요 없는 시트 이름을 빼고
+
+/**
+ * 필요 없는 시트 이름을 빼고
+ * @function takeOut
+ * @param {string} nameForOut 
+ * @returns {Array.<string>} array with items without nameForOut
+ * 
+ */
 const takeOut = function (nameForOut) {
   return array => array.filter(item => nameForOut !== item)
 }

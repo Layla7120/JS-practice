@@ -1,7 +1,7 @@
 /**
  * 로딩 할 때 나오는 화면 조절
  * @function showLoadingScreen
- * @returns function 
+ * @returns {function}
  */
 const showLoadingScreen = function () {
   const $loading = document.querySelector('#loading')
@@ -14,7 +14,9 @@ const showLoadingScreen = function () {
 }
 /** 
  * google.script.run promisify 
+ * serverFunction 을 찾아서 args를 넣은 html을 띄워준다. 
  * @function asyncRun
+ * @param { serverFunction: string, args : [string] }
  * @returns {Promise} Promise
  */
 const asyncRun = function ({ serverFunction = '', args = [] } = {}) {
@@ -41,7 +43,7 @@ const pipe = (...fns) => x => fns.reduce((y, f) => f(y), x)
 /** 
  * 사용자코드, 사용자 이름을 불러옴 
  * @function getUserInfoFromCaption
- * @returns {string, string} {userCode, userName}
+ * @returns {userCode : string, userName : string}
  */
 const getUserInfoFromCaption = function () {
   const captionEl = document.getElementById('user-info')
@@ -49,12 +51,20 @@ const getUserInfoFromCaption = function () {
   return { userCode, userName }
 }
 
-/** 
- * @global 학생들 기본 정보, 개인별 데이터
- * */
+/** @global */
 let studentBasicInfo, scheduleData
-            
-// 학생들의 기본정보를 모아두는 함수
+// main elements
+const app = document.querySelector('#app')
+const search = document.querySelector('#search-link')
+const addStudent = document.querySelector('#add-student-link')
+
+/**
+ * 학생들의 기본정보를 
+ * serverFunction 'getStudentBasicInfo' 도움을 받아 
+ * studentBasicInfo(global) 모아두는 함수
+ * @function getStudentsBasicInfo
+ * */
+ 
 const getStudentsBasicInfo = 
   asyncRun({ serverFunction:'getStudentBasicInfo' })
     .then(basicInfo => {
@@ -63,12 +73,15 @@ const getStudentsBasicInfo =
     })
     .catch(err => console.error(err))
 
-// main elements
-const app = document.querySelector('#app')
-const search = document.querySelector('#search-link')
-const addStudent = document.querySelector('#add-student-link')
-
-// 학습 스케줄 작성 화면 
+/** 
+ * 학습 스케줄 작성 화면 띄우기 
+ * 1. studySchedule.html 로드
+ * 2. getStudentSchedule 함수로부터 스케줄 정보 받아오기
+ * 3. displaySchedule 함수에 스케줄 정보 넣음
+ * 4. displaySchedule 함수에서 받은 정보를 html에 각각 입력
+ * @function loadStudyScheduleView    
+ * @param {event} e
+ * */
 const loadStudyScheduleView = function (e) {
   const userName = e.target.dataset.userName
   const userCode = e.target.dataset.userCode
@@ -94,10 +107,15 @@ const loadStudyScheduleView = function (e) {
   .then(() => {
     const captionEl = document.getElementById('user-info')
     captionEl.textContent = `${userCode} ${userName}`
-  })
-  .catch(err => console.error(err))
+  }) 
 }
-// 학생 찾는 화면 
+
+/**
+ * 학생 찾는 화면 
+ * 1. search.html 로드
+ * 2. index.html 'app' 에 html 작성
+ * @function loadSearchView
+ *  */ 
 const loadSearchView = function () {
   asyncRun({ 
     serverFunction: 'loadView', 
@@ -106,7 +124,13 @@ const loadSearchView = function () {
   .then(html => app.innerHTML = html)
   .catch(err => console.error(err))
 }
-// 새로운 학생 입력하기
+
+/**
+ * 새로운 학생 입력하기 
+ * 1. addStudent.html 로드
+ * 2. index.html 'app' 에 html 작성
+ * @function loadAddStudentView
+ *  */ 
 const loadAddStudentView = function () {
   asyncRun({
     serverFunction: 'loadView', 
@@ -116,7 +140,11 @@ const loadAddStudentView = function () {
   .catch(err => console.error(err))
 }
 
-// 신규 사용자 등록하기
+/**
+ * userName과 userCode를 serverFunction: 'initializeStudent' 에 넘겨
+ * 신규 사용자 등록한다.
+ * @function initializeStudent
+ *  */ 
 const initializeStudent = function () {
   const userCodeEl = document.querySelector('#userCode')
   const userNameEl = document.querySelector('#userName')
@@ -131,13 +159,27 @@ const initializeStudent = function () {
     .catch(err => console.error(err))
 }
 
-// serarch 기능
-// 입력정보 받아와서 빈칸 기준으로 분리해서 리턴
+/**
+ * serarch 기능
+ * 입력정보 받아와서 빈칸 기준으로 분리해서 리턴
+ * @function studentInput
+ * @param {event} event 
+ * @returns {string} inputValues 
+ */
 const studentInput = function (event) {
   const inputValue = event.target.value
   return inputValue.split(/\s+/)        
 }
-// inputValues를 basicInfo가 가지고 있는지 조사
+
+/**
+ * studentbasicInfo(global)에 inputValues가 있는 지 조사
+ * Object.values() : 전달된 파라미터 객체가 가지는 속성의 값들로 이루어진 배열을 리턴
+ * Array.prototype.some() : 배열 안의 어떤 요소라도 주어진 판별 함수를 통과하는지 테스트함 
+ * @function findValueFrom
+ * @param {Array.<string>} inputValues 
+ * @returns {Array.<string>} filtered
+ */
+
 const findValueFrom = function (inputValues = []) {
   //console.log(inputValues)
   const filtered = studentBasicInfo.filter(info => 
@@ -153,7 +195,12 @@ const findValueFrom = function (inputValues = []) {
   //console.log(filtered)
   return filtered
 }
-// filtered 된 항목을 화면에 표시
+
+/**
+ * filtered 된 항목을 화면에 표시
+ * @function display 
+ * @param {Array.<String>} studentInfos 
+ */
 const display = function (studentInfos) {
   // row를 만들어서 리턴
   const makeRow = function ({ userName, userCode } = {}) {
@@ -178,13 +225,25 @@ const display = function (studentInfos) {
   })
   }         
 }
-// 함수를 합쳐서 입력 결과에 맞는 학생 찾기
+
+/**
+ * 함수를 합쳐서 입력 결과에 맞는 학생 찾기
+ * @function searchStudent
+ * {@link studentInput}
+ * {@link findValueFrom}
+ * {@link display}
+ */
 const searchStudent = pipe(
   studentInput,
   findValueFrom,
   display
 )
 
+/**
+ * 
+ * @param {*} templateId 
+ * @returns 
+ */
 /**************************************
 * 학생의 스케줄 정보불러 와서 화면에 표시하기
 ***************************************/
@@ -194,6 +253,9 @@ const templateOn = function (templateId) {
   return templateBox.content.cloneNode(true).children[0]
 }
 
+/**
+ * 
+ */
 // 주어진 엘리먼트에 속하는 엘리먼트에 원하는 엘리먼트에 정보달아서 리턴
 // 클래스 만들기
 class EquipElement {
@@ -304,10 +366,17 @@ const modifyElement = function (element) {
   }    
 }
 
-// 원하는 곳에 append하기
+/**
+ * DOM | html 원하는 곳에 append하기
+ * @function attachNodeOn
+ * @param {Element} node
+ * @return {function} element => node.appendChild(element)
+ *  */ 
 const attachNodeOn = function (node) {
   return element => node.appendChild(element)
 } 
+
+
 // scheduleInfo 에 있는 데이타를 tr에 반영해서 보여줌
 const displaySchedule = function (scheduleInfo = {}) {
   const extractor = pipe(
