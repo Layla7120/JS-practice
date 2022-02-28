@@ -30,7 +30,6 @@ const asyncRun = function ({ serverFunction = '', args = [] } = {}) {
       })
       .withFailureHandler(err => reject(err))
       [serverFunction](...args)
-    
   })
 }
 
@@ -200,6 +199,7 @@ const findValueFrom = function (inputValues = []) {
  * filtered 된 항목을 화면에 표시
  * @function display 
  * @param {Array.<String>} studentInfos 
+ * @return {element} tr
  */
 const display = function (studentInfos) {
   // row를 만들어서 리턴
@@ -239,34 +239,45 @@ const searchStudent = pipe(
   display
 )
 
-/**
- * 
- * @param {*} templateId 
- * @returns 
- */
+
 /**************************************
 * 학생의 스케줄 정보불러 와서 화면에 표시하기
 ***************************************/
-// 템플릿 가져오기
+/**
+ * 템플릿 가져오기
+ * @param {*} templateId 
+ * @returns 
+ */
 const templateOn = function (templateId) {
   const templateBox = document.querySelector(templateId)
   return templateBox.content.cloneNode(true).children[0]
 }
 
-/**
- * 
- */
 // 주어진 엘리먼트에 속하는 엘리먼트에 원하는 엘리먼트에 정보달아서 리턴
-// 클래스 만들기
+/**
+ * 클래스 만들기
+ * @class EquipElement
+ */
 class EquipElement {
   constructor (element) {
     this.element = element
   }
-  // tag에 따른 html-elements 뽑기
+
+  /**
+   * tag에 따른 html-elements 뽑기
+   * @function elementsByTag
+   * @param {string} tagName
+   * @return {element} this.element.getElementsByTagName(tagName)
+   */
   elementsByTag (tagName) {
     return this.element.getElementsByTagName(tagName)
   }
 
+  /**
+   * @function makeTextExtractor
+   * @param {element} elements 
+   * @returns {string} result Schedule에서 해당하는 text 추출해 result에 push
+   */
   makeTextExtractor (elements) {
     let result = []
     for(let element of elements) {
@@ -275,6 +286,12 @@ class EquipElement {
     return result
   }
   
+  /**
+   * 
+   * @param {string} tagName 
+   * @returns 
+   * @todo bind에 대한 질문 함수에 대한 질문
+   */
   extractText (tagName) {
     const textExtractors = pipe(
       this.elementsByTag.bind(this),
@@ -286,6 +303,11 @@ class EquipElement {
   }
 
   // 갯수와 종류 입력해서 element 만들어서 붙이고 클래스 네임 달기
+  /**
+   * 
+   * @param {*} param0 
+   * @returns 
+   */
   makeElements ({numbers = 0, nodeTag = '', className = ''} = {}) {
     const elements = []
     for (let i = 0; i < numbers; i++) {
@@ -349,6 +371,8 @@ class EquipElement {
     return checkHolder
   }        
 }
+
+
 // 객체를 이용해서 td element에 텍스트 다는 함수 만들기
 const modifyElement = function (element) {
   const elementSetter = new EquipElement(element)
