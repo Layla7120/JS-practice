@@ -16,7 +16,7 @@ const showLoadingScreen = function () {
  * google.script.run promisify 
  * serverFunction 을 찾아서 args를 넣은 html을 띄워준다. 
  * @function asyncRun
- * @param { serverFunction: string, args : [string] } serverFunction을 args를 넣어 실행시켜준다. 
+ * @param { serverFunction:string, args :string[] } serverFunction을 args를 넣어 실행시켜준다. 
  * @returns {Promise} Promise
  */
 const asyncRun = function ({ serverFunction = '', args = [] } = {}) {
@@ -30,13 +30,13 @@ const asyncRun = function ({ serverFunction = '', args = [] } = {}) {
       })
       .withFailureHandler(err => reject(err))
       [serverFunction](...args)
-    
   })
 }
 
 /** 
  * Utility function pipe 함수를 이어줌
  * @function pipe 
+ * @param {...function}
  */
 const pipe = (...fns) => x => fns.reduce((y, f) => f(y), x)
 
@@ -200,6 +200,7 @@ const findValueFrom = function (inputValues = []) {
  * filtered 된 항목을 화면에 표시
  * @function display 
  * @param {Array.<String>} studentInfos 
+ * @return {element} tr
  */
 const display = function (studentInfos) {
   // row를 만들어서 리턴
@@ -243,6 +244,7 @@ const searchStudent = pipe(
 ***************************************/
 /**
  * 템플릿 가져오기
+<<<<<<< HEAD
  * @function templateOn
  * @param {element} templateId 
  * @returns {element} cloneNode
@@ -252,8 +254,12 @@ const templateOn = function (templateId) {
   return templateBox.content.cloneNode(true).children[0]
 }
 
+// 주어진 엘리먼트에 속하는 엘리먼트에 원하는 엘리먼트에 정보달아서 리턴
 /**
+<<<<<<< HEAD
  * 주어진 엘리먼트에 속하는 엘리먼트에 원하는 엘리먼트에 정보달아서 리턴
+=======
+>>>>>>> 7edf2a5a0059979eacdf4dcfc6da257a1bc0b8cb
  * 클래스 만들기
  * @class EquipElement
  */
@@ -261,6 +267,7 @@ class EquipElement {
   constructor (element) {
     this.element = element
   }
+
   /**
    * tag에 따른 html-elements 뽑기
    * @function elementsByTag
@@ -273,7 +280,7 @@ class EquipElement {
   /**
    * @function makeTextExtractor
    * @param {element} elements 
-   * @returns {Array.<String>} result 
+   * @returns {string[]} result Schedule에서 해당하는 text 추출해 result에 push
    */
   makeTextExtractor (elements) {
     let result = []
@@ -282,7 +289,6 @@ class EquipElement {
     }
     return result
   }
-
   /**
    * @function extractText
    * @param {element} tagName 
@@ -301,12 +307,12 @@ class EquipElement {
     } 
   }
 
+  // 갯수와 종류 입력해서 element 만들어서 붙이고 클래스 네임 달기
   /**
    * @fucntion makeElements
    * @param {*} param0 
    * @returns 
    */
-  // 갯수와 종류 입력해서 element 만들어서 붙이고 클래스 네임 달기
   makeElements ({numbers = 0, nodeTag = '', className = ''} = {}) {
     const elements = []
     for (let i = 0; i < numbers; i++) {
