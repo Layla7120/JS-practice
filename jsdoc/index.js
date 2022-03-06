@@ -399,7 +399,7 @@ const modifyElement = function (element) {
  * [DOM] html 원하는 곳에 append하기
  * @function attachNodeOn
  * @param {Element} node 
- * @return {function} element => node.appendChild(element)
+ * @return {function} element => node.appendChild(element)  : 이게 콜백인가? 
  *  */ 
 const attachNodeOn = function (node) {
   return element => node.appendChild(element)
