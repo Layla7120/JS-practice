@@ -16,7 +16,7 @@ const showLoadingScreen = function () {
  * google.script.run promisify 
  * serverFunction 을 찾아서 args를 넣은 html을 띄워준다. 
  * @function asyncRun
- * @param { serverFunction: string, args : [string] }
+ * @param { serverFunction:string, args :string[] } serverFunction을 args를 넣어 실행시켜준다. 
  * @returns {Promise} Promise
  */
 const asyncRun = function ({ serverFunction = '', args = [] } = {}) {
@@ -36,6 +36,7 @@ const asyncRun = function ({ serverFunction = '', args = [] } = {}) {
 /** 
  * Utility function pipe 함수를 이어줌
  * @function pipe 
+ * @param {...function}
  */
 const pipe = (...fns) => x => fns.reduce((y, f) => f(y), x)
 
@@ -50,9 +51,10 @@ const getUserInfoFromCaption = function () {
   return { userCode, userName }
 }
 
-/** @global */
+/**@type {object} */
 let studentBasicInfo, scheduleData
 // main elements
+/**@type {element} */
 const app = document.querySelector('#app')
 const search = document.querySelector('#search-link')
 const addStudent = document.querySelector('#add-student-link')
@@ -178,7 +180,6 @@ const studentInput = function (event) {
  * @param {Array.<string>} inputValues 
  * @returns {Array.<string>} filtered
  */
-
 const findValueFrom = function (inputValues = []) {
   //console.log(inputValues)
   const filtered = studentBasicInfo.filter(info => 
@@ -228,25 +229,25 @@ const display = function (studentInfos) {
 
 /**
  * 함수를 합쳐서 입력 결과에 맞는 학생 찾기
- * @function searchStudent
  * {@link studentInput}
  * {@link findValueFrom}
  * {@link display}
- */
+ * @function searchStudent */
 const searchStudent = pipe(
   studentInput,
   findValueFrom,
   display
 )
 
-
 /**************************************
 * 학생의 스케줄 정보불러 와서 화면에 표시하기
 ***************************************/
 /**
  * 템플릿 가져오기
- * @param {*} templateId 
- * @returns 
+<<<<<<< HEAD
+ * @function templateOn
+ * @param {element} templateId 
+ * @returns {element} cloneNode
  */
 const templateOn = function (templateId) {
   const templateBox = document.querySelector(templateId)
@@ -255,6 +256,10 @@ const templateOn = function (templateId) {
 
 // 주어진 엘리먼트에 속하는 엘리먼트에 원하는 엘리먼트에 정보달아서 리턴
 /**
+<<<<<<< HEAD
+ * 주어진 엘리먼트에 속하는 엘리먼트에 원하는 엘리먼트에 정보달아서 리턴
+=======
+>>>>>>> 7edf2a5a0059979eacdf4dcfc6da257a1bc0b8cb
  * 클래스 만들기
  * @class EquipElement
  */
@@ -266,17 +271,16 @@ class EquipElement {
   /**
    * tag에 따른 html-elements 뽑기
    * @function elementsByTag
-   * @param {string} tagName
-   * @return {element} this.element.getElementsByTagName(tagName)
+   * @param {element} tagName 
+   * @returns {element} this.element.getElementsByTagName(tagName)
    */
   elementsByTag (tagName) {
     return this.element.getElementsByTagName(tagName)
   }
-
   /**
    * @function makeTextExtractor
    * @param {element} elements 
-   * @returns {string} result Schedule에서 해당하는 text 추출해 result에 push
+   * @returns {string[]} result Schedule에서 해당하는 text 추출해 result에 push
    */
   makeTextExtractor (elements) {
     let result = []
@@ -285,12 +289,13 @@ class EquipElement {
     }
     return result
   }
-  
   /**
-   * 
-   * @param {string} tagName 
-   * @returns 
-   * @todo bind에 대한 질문 함수에 대한 질문
+   * @function extractText
+   * @param {element} tagName 
+   * @returns {Array.<String>} (schedule) => {
+   *  textExtractors.forEach(extractor => extractor(schedule))
+   * }  
+   * @todo see it again
    */
   extractText (tagName) {
     const textExtractors = pipe(
@@ -304,7 +309,7 @@ class EquipElement {
 
   // 갯수와 종류 입력해서 element 만들어서 붙이고 클래스 네임 달기
   /**
-   * 
+   * @fucntion makeElements
    * @param {*} param0 
    * @returns 
    */
@@ -391,17 +396,21 @@ const modifyElement = function (element) {
 }
 
 /**
- * DOM | html 원하는 곳에 append하기
+ * [DOM] html 원하는 곳에 append하기
  * @function attachNodeOn
- * @param {Element} node
- * @return {function} element => node.appendChild(element)
+ * @param {Element} node 
+ * @return {function} element => node.appendChild(element)  : 이게 콜백인가? 
  *  */ 
 const attachNodeOn = function (node) {
   return element => node.appendChild(element)
 } 
 
 
-// scheduleInfo 에 있는 데이타를 tr에 반영해서 보여줌
+/**
+ * scheduleInfo 에 있는 데이타를 tr에 반영해서 보여줌
+ * @function displaySchedule
+ * @param {object} scheduleInfo
+ *  */ 
 const displaySchedule = function (scheduleInfo = {}) {
   const extractor = pipe(
     templateOn,
