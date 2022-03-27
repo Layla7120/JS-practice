@@ -6,7 +6,7 @@ class Angles {
   public x: number;
   public y: number;
   public padding: number = 10;
-  public r: number = 50;
+  public textR: number = 100;
   public result: { name: string; count: number; color: string };
 
   angleInLeft = (angle: number): boolean => {
@@ -19,12 +19,12 @@ class Angles {
 
   setTextX = (): number => {
     if (this.angleInLeft(this.textAngle)) {
-      return this.x + (this.r + this.padding) * Math.cos(this.textAngle);
+      return this.x + (this.textR + this.padding) * Math.cos(this.textAngle);
     } else {
       return (
         this.x -
         this.result.name.length * 5 +
-        (this.r + this.padding) * Math.cos(this.textAngle)
+        (this.textR + this.padding) * Math.cos(this.textAngle)
       );
     }
   };
@@ -39,13 +39,13 @@ class Angles {
     cx.fillText(
       `${this.result.name}`,
       this.setTextX(),
-      this.y + (this.r + this.padding) * Math.sin(this.textAngle)
+      this.y + (this.textR + this.padding) * Math.sin(this.textAngle)
     );
   };
 
   drawPiChart = (): void => {
     cx.beginPath();
-    this.drawArc(50);
+    this.drawArc(100);
     this.writeText();
     currentAngle += this.sliceAngle;
     cx.lineTo(this.x, this.y);

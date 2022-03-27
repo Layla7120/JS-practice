@@ -2,7 +2,7 @@ var Angles = /** @class */ (function () {
     function Angles(x, y, count, result) {
         var _this = this;
         this.padding = 10;
-        this.r = 50;
+        this.textR = 100;
         this.angleInLeft = function (angle) {
             if (0.5 * Math.PI > angle && angle > -0.5 * Math.PI) {
                 return true;
@@ -13,12 +13,12 @@ var Angles = /** @class */ (function () {
         };
         this.setTextX = function () {
             if (_this.angleInLeft(_this.textAngle)) {
-                return _this.x + (_this.r + _this.padding) * Math.cos(_this.textAngle);
+                return _this.x + (_this.textR + _this.padding) * Math.cos(_this.textAngle);
             }
             else {
                 return (_this.x -
                     _this.result.name.length * 5 +
-                    (_this.r + _this.padding) * Math.cos(_this.textAngle));
+                    (_this.textR + _this.padding) * Math.cos(_this.textAngle));
             }
         };
         this.drawArc = function (r) {
@@ -27,7 +27,15 @@ var Angles = /** @class */ (function () {
         this.writeText = function () {
             cx.font = "10px Georgia";
             cx.fillStyle = _this.result.color;
-            cx.fillText("".concat(_this.result.name), _this.setTextX(), _this.y + (_this.r + _this.padding) * Math.sin(_this.textAngle));
+            cx.fillText("".concat(_this.result.name), _this.setTextX(), _this.y + (_this.textR + _this.padding) * Math.sin(_this.textAngle));
+        };
+        this.drawPiChart = function () {
+            cx.beginPath();
+            _this.drawArc(100);
+            _this.writeText();
+            currentAngle += _this.sliceAngle;
+            cx.lineTo(_this.x, _this.y);
+            cx.fill();
         };
         this.sliceAngle = (count / total) * 2 * Math.PI;
         this.startAngle = currentAngle;
@@ -54,11 +62,6 @@ var canvas = document.querySelector("canvas");
 var cx = canvas.getContext("2d");
 for (var _i = 0, results_1 = results; _i < results_1.length; _i++) {
     var result = results_1[_i];
-    cx.beginPath();
     var angles = new Angles(200, 200, result.count, result);
-    angles.drawArc(50);
-    angles.writeText();
-    currentAngle += angles.sliceAngle;
-    cx.lineTo(angles.x, angles.y);
-    cx.fill();
+    angles.drawPiChart();
 }
