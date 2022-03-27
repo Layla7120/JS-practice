@@ -1,4 +1,4 @@
-<canvas></canvas>
+<!-- <canvas></canvas>
 <script>
   // let cx = document.querySelector("canvas").getContext("2d");
   // cx.scale(3, .5);
@@ -6,14 +6,14 @@
   // cx.arc(50, 50, 40, 0, 7);
   // cx.lineWidth = 3;
   // cx.stroke();
-</script>
+</script> -->
 
-<canvas width = "600" height = "300"></canvas>
+<canvas width="600" height="300"></canvas>
 <script>
   let cx1 = document.querySelector("canvas").getContext("2d");
-  function branch(length, angle, scale){
+  function branch(length, angle, scale) {
     cx1.fillRect(0, 0, 1, length);
-    if(length < 8) return;
+    if (length < 8) return;
     cx1.save();
     cx1.translate(0, length);
     cx1.rotate(-angle);

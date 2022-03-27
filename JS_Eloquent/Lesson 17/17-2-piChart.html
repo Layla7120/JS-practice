@@ -1,0 +1,33 @@
+<canvas width="2000" height="2000"></canvas>
+<script>
+  const results = [
+    { name: "Satisfied", count: 1043, color: "lightblue" },
+    { name: "Netral", count: 563, color: "lightgreen" },
+    { name: "Unsatisfied", count: 510, color: "pink" },
+    { name: "No comment", count: 175, color: "silver" },
+  ];
+  const drawPiChart = (x, y, r, results) => {
+    let cx = document.querySelector("canvas").getContext("2d");
+    let total = results.reduce((sum, { count }) => sum + count, 0);
+    cx.font = "10px Georgia";
+    let currentAngle = -0.5 * Math.PI;
+    for (let result of results) {
+      let sliceAngle = (result.count / total) * 2 * Math.PI;
+      cx.beginPath();
+      cx.arc(x, y, r, currentAngle, currentAngle + sliceAngle);
+      let textAngle = (2 * currentAngle + sliceAngle) / 2;
+      cx.fillStyle = result.color;
+      if (0.5 * Math.PI > textAngle && textAngle > -0.5 * Math.PI) {
+        textX = x + (r + 10) * Math.cos(textAngle);
+      } else {
+        textX = x - result.name.length * 5 + (r + 10) * Math.cos(textAngle);
+      }
+      cx.fillText(`${result.name}`, textX, y + (r + 10) * Math.sin(textAngle));
+      currentAngle += sliceAngle;
+      cx.lineTo(x, y);
+      cx.fillStyle = result.color;
+      cx.fill();
+    }
+  };
+  drawPiChart(200, 200, 100, results);
+</script>
