@@ -1,0 +1,99 @@
+<canvas width="1000px" height="2000px"></canvas>
+<!-- index -->
+<script>
+  const cx = document.querySelector("canvas").getContext("2d");
+  const numbers = (x, y, i) => {
+    cx.font = "30px Georgia";
+    cx.fillText(`${i}`, x, y);
+  };
+  for (let i = 1; i < 6; i++) {
+    numbers(10, i * 150 - 100, i);
+  }
+</script>
+
+<!--1-->
+<script>
+  const trapezoid = document.querySelector("canvas").getContext("2d");
+  const drawtrapezoid = (x, y, height, topWidth, bottomWidth) => {
+    trapezoid.beginPath();
+    trapezoid.moveTo(x + (bottomWidth - topWidth) / 2, y);
+    trapezoid.lineTo(x + (bottomWidth - topWidth) / 2 + topWidth, y);
+    trapezoid.lineTo(x + bottomWidth, y + height);
+    trapezoid.lineTo(x, y + height);
+    trapezoid.lineTo(x + (bottomWidth - topWidth) / 2, y);
+    trapezoid.closePath();
+    trapezoid.stroke();
+  };
+
+  drawtrapezoid(100, 10, 50, 50, 100);
+</script>
+
+<!--2-->
+<script>
+  const RotatedRect = document.querySelector("canvas").getContext("2d");
+  const drawRotatedRect = (x, y) => {
+    RotatedRect.rotate((1 / 4) * Math.PI);
+    RotatedRect.translate(100, 0);
+    RotatedRect.fillStyle = "red";
+    RotatedRect.fillRect(x, y, 50, 50);
+  };
+  drawRotatedRect(100, 0);
+  RotatedRect.rotate(-(1 / 4) * Math.PI);
+</script>
+<!--3-->
+<script>
+  const zigZag = document.querySelector("canvas").getContext("2d");
+  const drawZigZag = (x, y, width, height, count) => {
+    zigZag.beginPath();
+    zigZag.moveTo(x, y);
+    for (let i = 0; i < count; i++) {
+      zigZag.lineTo(x + width, y + i * height + height / 2);
+      zigZag.lineTo(x, y + (i + 1) * height);
+    }
+    zigZag.stroke();
+  };
+  drawZigZag(50, 250, 60, 20, 6);
+</script>
+
+<!-- 4 -->
+<script>
+  const swirl = document.querySelector("canvas").getContext("2d");
+  const drawSwirl = (centerX, centerY, r) => {
+    swirl.beginPath();
+    swirl.moveTo(centerX, centerY);
+    let radius = 0;
+    for (let angle = 0; angle < Math.PI * 10; angle += 0.13) {
+      if (radius < r) {
+        swirl.lineTo(
+          centerX + radius * Math.cos(angle),
+          centerY + radius * Math.sin(angle)
+        );
+        radius += 0.3;
+      } else {
+        break;
+      }
+    }
+    swirl.stroke();
+  };
+
+  drawSwirl(100, 450, 50);
+</script>
+
+<script>
+  const star = document.querySelector("canvas").getContext("2d");
+  const drawStar = (x, y, r) => {
+    swirl.beginPath();
+    swirl.moveTo(x, y);
+    for (let angle = 0; angle <= Math.PI * 2; angle += Math.PI / 4) {
+      star.quadraticCurveTo(
+        x + (r / 8) * Math.cos(angle + Math.PI / 8),
+        y + (r / 8) * Math.sin(angle + Math.PI / 8),
+        x + r * Math.cos(angle + Math.PI / 4),
+        y + r * Math.sin(angle + Math.PI / 4)
+      );
+    }
+    star.fillStyle = "orange";
+    star.fill();
+  };
+  drawStar(100, 600, 80);
+</script>
