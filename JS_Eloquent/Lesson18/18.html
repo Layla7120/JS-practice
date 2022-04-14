@@ -1,0 +1,52 @@
+<!--전체 폼-->
+<form action="example/submit.html">
+  Name: <input type="text" name="name" /><br />
+  Password: <input type="password" name="password" /><br />
+  <button type="submit">Log in</button>
+</form>
+<script>
+  let form = document.querySelector("form");
+  console.log(form.elements[1].type);
+  console.log(form.elements.password.type);
+  console.log(form.elements.name.form == form);
+</script>
+
+<!--textfield-->
+<textarea></textarea>
+<script>
+  let textarea = document.querySelector("textarea");
+  textarea.addEventListener("keydown", event => {
+    if (event.keyCode == 113) {
+      replaceSelection(textarea, "Khasekhemwy");
+      event.preventDefault();
+    }
+  });
+
+  function replaceSelection(field, word) {
+    let from = field.selectionStart,
+      to = field.selectionEnd;
+    field.value = field.value.slice(0, from) + word + field.value.slice(to);
+    field.selectionStart = from + word.length;
+    field.selectionEnd = from + word.length;
+  }
+</script>
+<br />
+<!-- counter -->
+<input id="countlength" type="text" /> length: <span id="length">0</span>
+<script>
+  let text = document.querySelector("#countlength");
+  let output = document.querySelector("#length");
+  text.addEventListener("input", () => {
+    output.textContent = text.value.length;
+  });
+</script>
+<br />
+<!--checkbox-->
+<label> <input type="checkbox" id="purple" /> Make this page purple </label>
+<script>
+  let checkbox = document.querySelector("#purple");
+  checkbox.addEventListener("change", () => {
+    document.body.style.background = checkbox.checked ? "mediumpurple" : "";
+  });
+</script>
+<br />

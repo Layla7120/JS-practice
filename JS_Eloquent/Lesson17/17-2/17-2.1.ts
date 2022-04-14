@@ -73,6 +73,7 @@ function piChart(
         y + (r + padding) * Math.sin(textAngle)
       );
     };
+
     //한 조각 그리기
     cx.beginPath();
     cx.arc(x, y, r, piPartAngles.startAngle, piPartAngles.endAngle);
